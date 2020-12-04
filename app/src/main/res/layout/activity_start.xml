@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    android:background="#252A34"
+    tools:context=".RegisterAndLogin.StartActivity">
+
+    <ImageView
+        android:id="@+id/introLogo"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:src="@drawable/intrologo"
+        android:layout_alignParentTop="true"/>
+
+
+    <LinearLayout
+        android:id="@+id/registerTop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@+id/introLogo"
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Log In"
+            android:layout_marginTop="60dp"
+            android:textColor="#fff"
+            android:background="@drawable/button_background"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/register"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Register"
+            android:layout_marginTop="20dp"
+            android:textColor="#fff"
+            android:background="@drawable/button_background"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+
+
+
+
+
+</RelativeLayout>

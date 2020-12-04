@@ -1,0 +1,72 @@
+package com.example.kodinstagram.Model;
+
+public class User {
+
+    private String id;
+    private String username;
+    private String fullname;
+    private String imageurl;
+    private String bio;
+    public String search;
+
+    public User() {
+
+    }
+
+    public User(String id, String username, String fullname, String imageurl, String bio  ,String search) {
+        this.id = id;
+        this.username = username;
+        this.fullname = fullname;
+        this.imageurl = imageurl;
+        this.bio = bio;
+        this.search = search;
+    }
+
+    public String getSearch() {
+        return search;
+    }
+
+    public void setSearch(String search) {
+        this.search = search;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getFullname() {
+        return fullname;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public String getImageurl() {
+        return imageurl;
+    }
+
+    public void setImageurl(String imageurl) {
+        this.imageurl = imageurl;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+}

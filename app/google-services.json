@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "260771412908",
+    "firebase_url": "https://kodinstagram-492ee.firebaseio.com",
+    "project_id": "kodinstagram-492ee",
+    "storage_bucket": "kodinstagram-492ee.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260771412908:android:b09b046ae79d1bdeb01809",
+        "android_client_info": {
+          "package_name": "com.example.kodinstagram"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "260771412908-rav4ert9gk0i3bic3bl67s4s9numik7c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBn07F59kTN__3bAFkc_COUbgE6A36iivA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "260771412908-rav4ert9gk0i3bic3bl67s4s9numik7c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

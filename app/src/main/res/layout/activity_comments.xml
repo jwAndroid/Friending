@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#252A34"
+    tools:context=".CommentsActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#252A34"
+        android:elevation="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/myfont"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:text="Comments"/>
+
+    </androidx.appcompat.widget.Toolbar>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:layout_above="@+id/bottom"/>
+
+
+    <RelativeLayout
+        android:id="@+id/bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#D3121212"
+        android:elevation="10dp"
+        android:padding="4dp"
+        android:layout_alignParentBottom="true">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/image_profile"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="5dp" />
+
+            <EditText
+                android:id="@+id/add_comment"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:hint="Add a comment..."
+                android:textColorHint="@color/colorAccent"
+                android:textSize="15sp"
+                android:fontFamily="@font/myfont"
+                android:layout_marginStart="10dp"
+                android:background="@android:color/transparent"
+                android:layout_centerInParent="true"
+                android:textColor="@color/colorAccent"
+                android:layout_toEndOf="@+id/image_profile"
+                android:layout_toStartOf="@+id/post"
+                android:layout_toLeftOf="@+id/post"/>
+
+            <TextView
+                android:id="@+id/post"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="POST"
+                android:layout_marginRight="7dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:textColor="@color/colorAccent"
+                android:fontFamily="@font/myfont"
+                android:textSize="15sp"/>
+
+
+    </RelativeLayout>
+
+</RelativeLayout>
