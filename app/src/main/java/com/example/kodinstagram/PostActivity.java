@@ -53,7 +53,6 @@ public class PostActivity extends AppCompatActivity {
     TextView post;
     EditText description;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -181,7 +180,7 @@ public class PostActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_PICK);
-        startActivityForResult(Intent.createChooser(intent , "Pilih gambar")  ,  ACCESS_FILE );
+        startActivityForResult(Intent.createChooser(intent , "")  ,  ACCESS_FILE );
     }
 
     @Override

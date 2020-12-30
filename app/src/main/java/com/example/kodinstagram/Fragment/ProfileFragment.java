@@ -46,7 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-
 public class ProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment" ;
@@ -362,7 +361,6 @@ public class ProfileFragment extends Fragment {
                         i++;
                     }
                 }
-
                 posts.setText(""+i);
             }
 

@@ -191,6 +191,7 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void uploadImage(){
+
         final ProgressDialog pd = new ProgressDialog(this);
         pd.setMessage("Uploading.....");
         pd.show();
@@ -207,9 +208,7 @@ public class EditProfileActivity extends AppCompatActivity {
             uploadTask.continueWithTask(new Continuation() {
                 @Override
                 public Object then(@NonNull Task task) throws Exception {
-                    if (!task.isSuccessful()){
-                        throw task.getException();
-                    }
+                    if (!task.isSuccessful()){ throw task.getException(); }
 
                     return filereference.getDownloadUrl();
                     //여기까지 url return

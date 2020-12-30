@@ -1,20 +1,18 @@
 package com.example.kodinstagram.Fragment;
 
-import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.kodinstagram.Adapter.UserAdapter;
 import com.example.kodinstagram.Model.User;
@@ -29,9 +27,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
 
 public class SearchFragment extends Fragment {
 
@@ -133,6 +129,8 @@ public class SearchFragment extends Fragment {
                         User user = snapshot.getValue(User.class);
                         assert user != null;
                         if (!user.getId().equals(firebaseUser.getUid())){
+//                            if(user.getFullname().equals("최지웅"))
+//                            여기서 , 네임이.뭐와 같다면? "x"와 같다면 add . 니까 당연히 x 를 체크박스 변수(getText)로 두고 add 해라
                             mUsers.add(user);
                         }
                     }

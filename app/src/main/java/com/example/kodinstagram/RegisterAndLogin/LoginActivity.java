@@ -36,7 +36,6 @@ public class LoginActivity extends AppCompatActivity {
     TextView forgot_password;
 
     FirebaseAuth auth;
-
     ProgressDialog pd;
 
     @Override
@@ -51,7 +50,6 @@ public class LoginActivity extends AppCompatActivity {
         forgot_password = findViewById(R.id.forgot_password);
 
         pd = new ProgressDialog(LoginActivity.this);
-
         auth = FirebaseAuth.getInstance();
 
         txt_signup.setOnClickListener(new View.OnClickListener() {

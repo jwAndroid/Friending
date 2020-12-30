@@ -192,8 +192,6 @@ public class OtherWayLogInActivity extends AppCompatActivity {
 
                             }
 
-
-
                         } else {
 
                             Log.w(TAG, "signInWithCredential:failure", task.getException());

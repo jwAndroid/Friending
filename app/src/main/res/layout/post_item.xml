@@ -42,7 +42,9 @@
 
         </LinearLayout>
 
+
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/mainImage_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -113,6 +115,7 @@
             android:layout_marginStart="8dp"
             android:fontFamily="@font/myfont"
             android:textColor="#D5FFFFFF"
+            android:text="6 좋아요"
             android:layout_marginTop="5dp"
             />
 
@@ -123,6 +126,7 @@
             android:layout_marginStart="8dp"
             android:fontFamily="@font/myfont"
             android:textColor="#D5FFFFFF"
+            android:text="작성자"
             android:layout_marginTop="5dp"
             />
 
@@ -133,6 +137,7 @@
             android:layout_marginStart="8dp"
             android:fontFamily="@font/myfont"
             android:textColor="#D5FFFFFF"
+            android:text="내용"
             android:layout_marginTop="5dp"
             />
 

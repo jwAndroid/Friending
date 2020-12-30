@@ -154,7 +154,6 @@ public class HomeFragment extends Fragment {
                     for (String id : followingList){
                         if (post.getPublisher().equals(id)){
                             postLists.add(post);
-
                         }
                     }
                 }

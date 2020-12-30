@@ -34,7 +34,6 @@ public class RegisterActivity extends AppCompatActivity {
     //Firebase Setting
     FirebaseAuth auth;
     DatabaseReference reference;
-
     ProgressDialog pd;
 
 
@@ -75,6 +74,7 @@ public class RegisterActivity extends AppCompatActivity {
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 pd = new ProgressDialog(RegisterActivity.this);
                 pd.setMessage("Please wait..");
                 pd.show();
@@ -95,7 +95,7 @@ public class RegisterActivity extends AppCompatActivity {
                     Toast.makeText(RegisterActivity.this , "At least Password 6 characters" , Toast.LENGTH_SHORT).show();
                     pd.dismiss();
                 }else{
-                    if (password.equals(passwordConfirm)){
+                    if (password.getText().toString().equals(passwordConfirm)){
                         register(str_username , str_fullname , str_email , str_password);
                         pd.dismiss();
                     }else{

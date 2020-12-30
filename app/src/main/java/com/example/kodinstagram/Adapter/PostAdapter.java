@@ -140,7 +140,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
             @Override
             public void onClick(View v) {
                 SharedPreferences.Editor editor = mContext.getSharedPreferences("PREFS" , Context.MODE_PRIVATE).edit();
-
                 editor.putString("profileid",post.getPublisher());
                 editor.apply();
 
