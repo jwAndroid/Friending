@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference reference;
     Fragment selectedFragment = null;
 
+    //tes
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
