@@ -46,8 +46,8 @@ import com.facebook.appevents.AppEventsLogger;
 
 public class OtherWayLogInActivity extends AppCompatActivity {
 
+    /**/
     private static final String TAG = "OtherWayLogInActivity" ;
-
     private static final int RC_SIGN_IN = 100;
     SignInButton mGoogleSigninBtn;
     GoogleSignInClient mGoogleSignInClient;
@@ -82,20 +82,20 @@ public class OtherWayLogInActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+                /* signInIntent , 리퀘스트 코드 던져서 진행.  */
                 startActivityForResult(signInIntent , RC_SIGN_IN);
             }
         });
 
-        //FaceBook Login
+        //FaceBook Login >> SDK , 콜백매니저 객체생성
         FacebookSdk.sdkInitialize(OtherWayLogInActivity.this);
-
         mCallbackManager = CallbackManager.Factory.create();
         loginButton = findViewById(R.id.facebookLoginBtn);
         loginButton.setReadPermissions("email", "public_profile");
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-
+                /*콜백함수로써 FIREBASE AUTH를 위한 token을 얻고 --> 이 토큰을 auth의 파라메터로 던져서 진행하면 끝. */
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
@@ -117,13 +117,16 @@ public class OtherWayLogInActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+        /* 현재 유저객체를 받아와서 앱 start 할때에 updateUI를
+        * 진행하는데 updateUI 같은경우는기존에 이미 왔는지 아닌지 확인여부를 나눠줌 */
+
         if(currentUser != null){
             updateUI(currentUser);
         }
     }
-
-
     private void handleFacebookAccessToken(AccessToken token) {
+        /*getToken을 가지고서 AuthCredential,FacebookAuthProvider 사용함으로써
+        * 페이스북+파이어베이스 연동하여 크리덴셜 생성 */
         Log.d(TAG, "handleFacebookAccessToken:" + token);
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mAuth.signInWithCredential(credential)
@@ -134,11 +137,13 @@ public class OtherWayLogInActivity extends AppCompatActivity {
 
                             Log.d(TAG, "signInWithCredential:success");
                             final FirebaseUser user = mAuth.getCurrentUser();
+                            /*createWithEmailAndPassWord를 사용함과 동일하게 진행 */
                             assert user != null;
 
                             if (Objects.requireNonNull
                                     (Objects.requireNonNull(task.getResult())
                                             .getAdditionalUserInfo()).isNewUser()){
+                                /* task.getResult().isNewUser()로써 새로운유저인지 아닌지 진행 */
 
                                 String userid = user.getUid();
                                 DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
@@ -153,6 +158,7 @@ public class OtherWayLogInActivity extends AppCompatActivity {
                                 hashMap.put("imageurl" , "https://firebasestorage.googleapis.com/v0/b/kodinstagram-492ee.appspot.com/o/placeholer.png?alt=media&token=c9c9b116-09cc-4149-bf65-18175c1c8478");
                                 hashMap.put("search" , "");
                                 hashMap.put("platform" , "facebook");
+
 
                                 reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
@@ -226,11 +232,13 @@ public class OtherWayLogInActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_SIGN_IN){
+            /*get클라이언트인 signInIntent 가 맞다면onActivityResult 로써 받아온 data를 가지고서 Task객체생성  */
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 assert account != null;
                 firebaseAuthWithGoogle(account);
+                /*구글로그인을 위한 account 객체생성후 페이스북과 동일하게 이 객체를 파라미터로 넣어서 진행 */
 
             }catch (ApiException e){
                 Log.w(TAG , "Google sign in failed" , e);

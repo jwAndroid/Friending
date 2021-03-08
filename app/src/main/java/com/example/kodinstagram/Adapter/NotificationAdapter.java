@@ -33,8 +33,8 @@ import java.util.Objects;
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHoler> {
 
     private static final String TAG = "NotificationAdapter";
-    private Context mContext;
-    private List<Notification> mNotifications;
+    private final Context mContext;
+    private final List<Notification> mNotifications;
 
     public NotificationAdapter(Context mContext, List<Notification> mNotifications) {
         this.mContext = mContext;
@@ -45,22 +45,21 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public ViewHoler onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.notification_item , viewGroup , false);
-        return new NotificationAdapter.ViewHoler(view);
+        return new ViewHoler(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHoler viewHoler, int position) {
 
-        //Model
+        //Model객체 생성하여 리사이클러뷰 포지션값 얻어오고 진행
         final Notification notification = mNotifications.get(position);
-
         viewHoler.text.setText(notification.getText());
         getUserInfo(viewHoler.image_profile , viewHoler.username , notification.getUserid());
 
+        /* Notification 이 이미지에 관련된걸수도 있고 , 팔로우 일수도있으니까 제어해준다. */
         if (notification.isIspost()){
             viewHoler.post_image.setVisibility(View.VISIBLE);
             getPostImage(viewHoler.post_image , notification.getPostid());
-
         }else{
             viewHoler.post_image.setVisibility(View.GONE);
         }
@@ -71,7 +70,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             public void onClick(View v) {
 
                 if (notification.isIspost()){
-
+                    /* 포스트에 대한 이벤트 처리 */
                     SharedPreferences.Editor editor = mContext.getSharedPreferences("PREFS" , Context.MODE_PRIVATE).edit();
                     editor.putString("postid" , notification.getPostid());
                     editor.apply();
@@ -82,8 +81,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                             .replace(R.id.fragment_container , new PostDetailFragment())
                             .commit();
 
-                } else {
-
+                }else{
+                    /* 유저에 대한 이벤트 처리  */
                     SharedPreferences.Editor editor = mContext.getSharedPreferences("PREFS" , Context.MODE_PRIVATE).edit();
                     editor.putString("profileid" , notification.getUserid());
                     editor.apply();
@@ -103,7 +102,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         return mNotifications.size();
     }
 
-    public class ViewHoler extends RecyclerView.ViewHolder{
+    public static class ViewHoler extends RecyclerView.ViewHolder{
 
         public ImageView image_profile , post_image;
         public TextView username , text;
@@ -120,16 +119,23 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
     //publisherid == getUserId
+    /*포스트를 가져오는것과 마찬가지로 파라메터로 publisherid 를 넣고 데이터베이스에 정보요청   */
     private void getUserInfo(final ImageView imageView , final TextView username , String publisherid){
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(publisherid);
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(publisherid);
+
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 try{
                     assert user != null;
-                    Glide.with(mContext).load(user.getImageurl()).override(80,80).into(imageView);
+                    Glide.with(mContext)
+                            .load(user.getImageurl())
+                            .override(80,80)
+                            .into(imageView);
                     username.setText(user.getUsername());
 
                 }catch (Exception e ){
@@ -144,8 +150,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     }
 
+    /* postid 를 파라메터로 넣어서 해당 포스트 데이터 모델을 요청해서 글라이드로 이미지 셋팅 */
     private void getPostImage(final ImageView imageView , String postid){
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Posts").child(postid);
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Posts")
+                .child(postid);
+
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

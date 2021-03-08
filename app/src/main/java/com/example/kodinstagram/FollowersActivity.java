@@ -25,6 +25,8 @@ import java.util.List;
 
 public class FollowersActivity extends AppCompatActivity {
 
+    /*총 4가지 기능을 함
+    * intent로 주제( = title 어떤기능을 할것인지) string data를 받아서 진행함*/
     String id;
     String title;
     List<String> idList;
@@ -110,7 +112,8 @@ public class FollowersActivity extends AppCompatActivity {
 
     private void getLikes() {
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Likes")
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Likes")
                 .child(id);
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -118,6 +121,7 @@ public class FollowersActivity extends AppCompatActivity {
                 idList.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     idList.add(snapshot.getKey());
+                    /*동일한 방식으로 스냅숏 키 저장후에 그에 해당하는 user 객체 뿌려주기*/
                 }
                 showUsers();
             }

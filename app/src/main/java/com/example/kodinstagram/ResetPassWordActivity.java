@@ -47,6 +47,7 @@ public class ResetPassWordActivity extends AppCompatActivity {
                     Toast.makeText(ResetPassWordActivity.this , "please Insert Email!" ,
                             Toast.LENGTH_SHORT).show();
                 }else{
+                    /* email 값을 파라메터로 넣어서 진행 */
                     firebaseAuth.sendPasswordResetEmail(email)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override

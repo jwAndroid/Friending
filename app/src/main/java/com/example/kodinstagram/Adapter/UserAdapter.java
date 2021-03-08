@@ -60,13 +60,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         this.mUsers = mUsers;
         this.isfragment = isfragment;
         this.isChat = isChat;
-
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int position) {
-
         View view = LayoutInflater.from(mContext).inflate(R.layout.user_item , viewGroup , false);
         return new UserAdapter.ViewHolder(view);
     }
@@ -83,12 +81,17 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         viewHolder.fullname.setText(user.getFullname());
 
         try {
-            Glide.with(mContext).load(user.getImageurl()).override(120,120).into(viewHolder.image_profile);
-//            Picasso.get().load(user.getImageurl()).into(viewHolder.image_profile);
+            Glide.with(mContext)
+                    .load(user.getImageurl())
+                    .override(120,120)
+                    .into(viewHolder.image_profile);
+
             isFollowing(user.getId() , viewHolder.btn_follow);
+            /*userid 로써 레퍼런스 참조하여 팔로우를 했는지 안했는지 판변 */
 
             if (user.getId().equals(firebaseUser.getUid())){
                 viewHolder.btn_follow.setVisibility(View.GONE);
+                /*자기자신은 없애준다.*/
             }
 
         }catch (Exception e){
@@ -96,6 +99,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         }
 
         if (isChat){
+            //채팅 액티비티의 어댑터도 이 어댑터를 쓰기떄문에
+            // 어댑터 파라메터로 플래그를 던져서 실행시킬지 정해줌.
             lastMessage(user.getId() , viewHolder.last_msg);
         }else{
             viewHolder.last_msg.setVisibility(View.GONE);
@@ -106,6 +111,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
 
+                /*단순히 해당 유저클릭시 isfragment = true 라면 그냥 replace진행  */
                 if (isfragment){
                     SharedPreferences.Editor editor = mContext.getSharedPreferences("PREFS" , Context.MODE_PRIVATE).edit();
                     editor.putString("profileid" , user.getId());
@@ -117,7 +123,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                             .replace(R.id.fragment_container , new ProfileFragment())
                             .commit();
                 }else{
-
                     Intent intent = new Intent(mContext , MainActivity.class);
                     intent.putExtra("publisherid" , user.getId());
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -126,7 +131,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             }
         });
 
-        //TODO : START CHAT WITH USER.GET 'UID'
+        //TODO : 롱클릭으로써 채팅구현 상대의 uid를 같이보냄.
         viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -134,12 +139,15 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 //                Toast.makeText(mContext , user.getUsername()+"Start Chat!" , Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(mContext , MessageActivity.class);
                 intent.putExtra("hisUid" , user.getId());
+                Log.d(TAG, "상대 uid : "+ user.getId());
+                Log.d(TAG, "나 uid : "+ firebaseUser.getUid());
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(intent);
                 return true;
             }
         });
 
+        /*버튼 상태 setValue or remove */
         viewHolder.btn_follow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -196,7 +204,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         HashMap<String , Object> hashMap = new HashMap<>();
         hashMap.put("userid" , firebaseUser.getUid());
         hashMap.put("text" , "Started Following you!");
-        //레퍼런스 노드가 변하면 안되서 그대로 남겨둠
         hashMap.put("postid" , "");
         hashMap.put("ispost" , false);
 
@@ -275,7 +282,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     private void isFollowing(final String userid , final Button button){
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
-                .child("Follow").child(firebaseUser.getUid()).child("following");
+                .child("Follow")
+                .child(firebaseUser.getUid())
+                .child("following");
+
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

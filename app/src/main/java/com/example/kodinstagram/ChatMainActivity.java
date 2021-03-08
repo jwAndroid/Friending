@@ -37,6 +37,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatMainActivity extends AppCompatActivity {
 
+    /* 뷰페이저 생성 + db 쿼리 + 메세지개수 카운트 */
+
     private static final String TAG = "ChatMainActivity";
     CircleImageView profile_image;
     TextView username;
@@ -73,7 +75,7 @@ public class ChatMainActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 User user = dataSnapshot.getValue(User.class);
-                // defult constuctor ! 파라메터에 3개의 값이 들어가야하는데 없이 유저모델을 생성하려고하니까 생기는 에러임
+                // 디폴트생성자 생성 파라메터에 3개의 값이 들어가야하는데 없이 유저모델을 생성하려고하니까 생기는 에러임
                 assert user != null;
                 username.setText(user.getUsername());
 

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -29,8 +30,6 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference reference;
     Fragment selectedFragment = null;
 
-    //tes22222222222222
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         if (intent != null){
             String publisher = intent.getString("publisherid");
 
-            //get에서 받고나서 프래그먼트떄문에 프리페어런스로 꼭 저장해서 남겨놓기위해
+            //get에서 받고나서 프래그먼트떄문에 프리페어런스로 꼭 저장
             SharedPreferences.Editor editor = getSharedPreferences("PREFS" , MODE_PRIVATE).edit();
             editor.putString("profileid" , publisher);
             editor.apply();
@@ -59,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
         }else{
 
+            /* 기본 화면(home) 트랜잭션 */
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, new HomeFragment())
@@ -67,9 +67,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
+    /*replace 보다는 add로 쓰도록 */
+    private final BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @SuppressLint("NonConstantResourceId")
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
                         case R.id.nav_add :
                             selectedFragment = null;
+                            /* 이부분 activity > firebase storage 이용 */
                             startActivity(new Intent(MainActivity.this , PostActivity.class));
                             break;
 
@@ -93,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
 
                         case R.id.nav_profile :
+                            /* 해당유저의 uid를 저장해서 fragment 전환 */
                             SharedPreferences.Editor editor = getSharedPreferences("PREFS", MODE_PRIVATE).edit();
                             editor.putString("profileid"  , FirebaseAuth.getInstance().getCurrentUser().getUid());
                             editor.apply();
@@ -102,7 +105,10 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     if (selectedFragment != null){
-                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,selectedFragment).commit();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.fragment_container,selectedFragment) /*초기화된 프래그먼트로 replace*/
+                                .commit();
 
                     }
 

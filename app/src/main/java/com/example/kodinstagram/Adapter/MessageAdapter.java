@@ -27,7 +27,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     private Context mContext;
     private List<Chat> mChat;
     private String imageurl;
-
     FirebaseUser fuser;
 
     public MessageAdapter(Context mContext, List<Chat> mChat , String imageurl) {
@@ -39,7 +38,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     @NonNull
     @Override
     public MessageAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
         if (viewType == MSG_TYPE_RIGHT){
             View view = LayoutInflater.from(mContext).inflate(R.layout.chat_item_right , parent , false);
             return new MessageAdapter.ViewHolder(view);
@@ -47,7 +45,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             View view = LayoutInflater.from(mContext).inflate(R.layout.chat_item_left , parent , false);
             return new MessageAdapter.ViewHolder(view);
         }
-
     }
 
     @Override
@@ -56,12 +53,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         final Chat chat = mChat.get(position);
         holder.show_message.setText(chat.getMessage());
 
+        /*이미지 url이 공백일때 */
         if (imageurl.equals("")){
             holder.profile_image.setImageResource(R.drawable.placeholer);
         }else{
             Picasso.get().load(imageurl).into(holder.profile_image);
         }
 
+        /*position 이 맨 마지막일때 진행하고, 읽음처리와 보냄처리를 진행한다. */
         if (position == mChat.size()-1){
             if (chat.isIsseen()){
                 holder.txt_seen.setText("Read!");
@@ -104,6 +103,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }
     }
 
+    /* 함수명 그대로 아이템뷰타입을 받아서 자기자신과 상대방의 반환값을 리턴받아서 진행한다.
+    *  채팅할때 왼쪽 오른쪽 나눠주기위함. */
     @Override
     public int getItemViewType(int position) {
         fuser = FirebaseAuth.getInstance().getCurrentUser();

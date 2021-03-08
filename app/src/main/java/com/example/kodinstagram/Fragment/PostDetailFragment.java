@@ -68,11 +68,13 @@ public class PostDetailFragment extends Fragment {
         DatabaseReference reference = FirebaseDatabase.getInstance()
                 .getReference("Posts")
                 .child(postid);
+        /*SharedPreferences 저장한 postid를 가져와서 레퍼런스생성 */
 
         //postid는 하나이니까 list에 하나만 저장후 최종적으로 뿌려줌
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                /* 하나밖에 없으니 바로 진행 */
                 postList.clear();
                 Post post = dataSnapshot.getValue(Post.class);
                 //위에있는 db값을 긁어와서 Post모델에 접근해서 get해서 post쪽에 넣어줌

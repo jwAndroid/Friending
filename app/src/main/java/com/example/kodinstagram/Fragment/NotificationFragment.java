@@ -75,8 +75,10 @@ public class NotificationFragment extends Fragment {
 
         final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         assert firebaseUser != null;
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notifications")
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Notifications")
                 .child(firebaseUser.getUid());
+        /* 하위노드는 현재자기자신의 uid로써 레퍼런스 인스턴스객체 생성*/
 
         reference.addValueEventListener(new ValueEventListener() {
             @Override
@@ -85,7 +87,7 @@ public class NotificationFragment extends Fragment {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Notification notification = snapshot.getValue(Notification.class);
                     assert notification != null;
-                    if (!notification.getUserid().equals(firebaseUser.getUid())){
+                    if (!notification.getUserid().equals(firebaseUser.getUid())){ //자기자신을 제외한 나머지
                         notificationList.add(notification);
                     }
 

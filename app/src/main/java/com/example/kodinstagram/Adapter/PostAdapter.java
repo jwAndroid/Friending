@@ -30,7 +30,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.kodinstagram.CommentsActivity;
 import com.example.kodinstagram.FollowersActivity;
-import com.example.kodinstagram.Fragment.PostDetailFragment;
 import com.example.kodinstagram.Fragment.ProfileFragment;
 import com.example.kodinstagram.Model.Post;
 import com.example.kodinstagram.Model.User;
@@ -57,13 +56,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
     public List<Post> mPost;
     private FirebaseUser firebaseUser;
 
+    /* post item 더블클릭시 애니메이션 구현하는 변수 */
     AnimatedVectorDrawableCompat avd;
     AnimatedVectorDrawable avd2;
 
     //TODO : DOUBLE CLICK
+    //더블클릭 카운트 변수
     int i = 0;
 
-    public PostAdapter() { }
+    public PostAdapter() {}
+
     public PostAdapter(Context mContext, List<Post> mPost) {
         this.mContext = mContext;
         this.mPost = mPost;
@@ -72,7 +74,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
     @NonNull
     @Override
     public ViewHoler onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-
         View view = LayoutInflater.from(mContext).inflate(R.layout.post_item , viewGroup , false);
         return new PostAdapter.ViewHoler(view);
     }
@@ -121,6 +122,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
         }
 
 
+        /*SharedPreferences profileid 를 꼭 저장후 넘김.  */
         viewHoler.image_profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -177,21 +179,25 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
 
         //TODO : Post_item 쪽 post_image 에서 imageView 하나 장착해놓고
         //TODO : 스레드가아닌 애니메이션을 넣은거같다 . 우선 LIKE 버튼처리다시공부하고 적용할것.
+
+        /* 포스트아이템 더블클릭시 핸들러 통해서 애니메이션+포스트 like 구현  */
         final Drawable drawable = viewHoler.heart.getDrawable();
         viewHoler.post_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
+                //클릭카운트
                 i++;
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-
+                        /* 애니메이션 처리 */
                         if (i == 1){
-                            //TODO : ONE Click POST DETAIL FRAGMENT ( DELETE )
+                            //TODO : ONE Click
 
                         }else if (i == 2){
                             //TODO : Two Click POST LIKE BUTTON ANIMATION
+                            //당연히 viewHoler의 대한 값으로 진행해야한다.
                             viewHoler.heart.setAlpha(0.70f);
                             if (drawable instanceof AnimatedVectorDrawableCompat){
                                 avd = (AnimatedVectorDrawableCompat) drawable;
@@ -311,6 +317,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
             public void onClick(View view) {
                 PopupMenu popupMenu = new PopupMenu(mContext , view);
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @SuppressLint("NonConstantResourceId")
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
                         switch (menuItem.getItemId()){
@@ -320,16 +327,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
                                 return true;
 
                             case R.id.delete :
-                                FirebaseDatabase.getInstance().getReference("Posts")
-                                        .child(post.getPostid())
-                                        .removeValue()
+                                FirebaseDatabase.getInstance()
+                                        .getReference("Posts")
+                                        .child(post.getPostid()) // 해당 노드를 찾아가서
+                                        .removeValue() //removeValue
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if (task.isSuccessful()){
                                                     Toast.makeText(mContext , "Deleted!" , Toast.LENGTH_SHORT).show();
-
-
                                                 }
                                             }
                                         });
@@ -354,7 +360,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
                 popupMenu.show();
             }
         });
-    }//........onBindViewHoler.........
+
+    }//.............onBindViewHoler...............
 
     @Override
     public int getItemCount() {
@@ -387,8 +394,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
         }
     }//..ViewHoler..
 
+    /* 코맨트 개수 카운트 메소드 */
     private void getComments(String postid , final TextView comments){
-
         DatabaseReference reference = FirebaseDatabase.getInstance()
                 .getReference("Comments")
                 .child(postid);
@@ -397,6 +404,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
             @SuppressLint("SetTextI18n")
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                /*postid 를 통해서 어떤포스트인지 참조하여 그 포스팅의 개수카운트*/
                 comments.setText("All " + dataSnapshot.getChildrenCount() + " Comments");
             }
 
@@ -411,7 +419,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
     private void isLiked(String postid , final ImageView imageView){
 
         final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
                 .child("Likes")
                 .child(postid);
@@ -419,9 +426,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child(firebaseUser.getUid()).exists()){
+                if (dataSnapshot
+                        .child(firebaseUser.getUid())
+                        .exists()){
                     imageView.setImageResource(R.drawable.ic_liked);
                     imageView.setTag("liked");
+
                 }else{
                     imageView.setImageResource(R.drawable.ic_like);
                     imageView.setTag("like");
@@ -452,7 +462,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
     }
 
     private void nrLikes(final TextView likes , String postid){
-
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
                 .child("Likes")
                 .child(postid);
@@ -473,8 +482,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
 
 
     private void publisherInfo(final ImageView image_profile , final TextView username , final TextView publisher , String userid){
-
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(userid);
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(userid);
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -550,7 +560,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
 
                 FirebaseDatabase.getInstance().getReference("Posts")
                         .child(postid)
-                        .updateChildren(hashMap);
+                        .updateChildren(hashMap); //수정했다면 updateChildren 진행
+
             }
         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
@@ -562,12 +573,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHoler> {
     }
 
     private void getText(String postid, final EditText editText){
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Posts")
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Posts")
                 .child(postid);
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                editText.setText(Objects.requireNonNull(dataSnapshot.getValue(Post.class)).getDescription());
+                editText.setText(Objects.requireNonNull(
+                        dataSnapshot.getValue(Post.class)
+                ).getDescription());
             }
 
             @Override

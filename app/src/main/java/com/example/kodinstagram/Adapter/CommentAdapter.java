@@ -62,10 +62,10 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         final Comment comment = mComment.get(position);
-
         viewHolder.comment.setText(comment.getComment());
         getUserInfo(viewHolder.image_profile , viewHolder.username , comment.getPublisher());
 
+        /*코맨츠 or 프로필이미지 클릭시 아이디값 넘겨서 인텐트 진행 */
         viewHolder.comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -84,14 +84,15 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
             }
         });
 
+        /* setOnLongClickListener > db 삭제요청 */
         viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
 
+                /*당연히 자기 자신일때만 진행해야 맞다.*/
                 if (comment.getPublisher().equals(firebaseUser.getUid())){
-                    //자기자신이라면?
                     AlertDialog alertDialog = new AlertDialog.Builder(mContext).create();
-                    alertDialog.setTitle("Do you wnat to delete?");
+                    alertDialog.setTitle("삭제하시겠습니까?");
                     alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "No",
                             new DialogInterface.OnClickListener() {
                                 @Override
@@ -152,7 +153,10 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
 
     private void getUserInfo(final ImageView imageView , final TextView username , String publisherid){
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(publisherid);
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(publisherid);
+
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

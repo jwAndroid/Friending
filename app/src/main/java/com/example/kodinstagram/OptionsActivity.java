@@ -44,6 +44,7 @@ public class OptionsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+
                 FirebaseAuth.getInstance().signOut();
                 com.facebook.login.LoginManager.getInstance().logOut();
                 startActivity(new Intent(OptionsActivity.this , StartActivity.class)

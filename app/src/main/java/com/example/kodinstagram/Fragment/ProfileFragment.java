@@ -1,5 +1,6 @@
 package com.example.kodinstagram.Fragment;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -90,9 +91,11 @@ public class ProfileFragment extends Fragment {
         statusReference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
 
         //main 쪽에서 getIntent로 받아놓은 profileid
-        //액티비티에서 프래그먼트로 데이터넘길떄 SharedPreferences 이용하는듯함.
+        //액티비티에서 프래그먼트로 데이터넘길떄 SharedPreferences 이용
+        /*현재 프래그먼트에서 가장 중요한부분 */
         SharedPreferences prefs = requireContext().getSharedPreferences("PREFS" , Context.MODE_PRIVATE);
         profileid = prefs.getString("profileid","noon");
+        Log.d(TAG, "profileID ::"+profileid);
 
         image_profile = view.findViewById(R.id.image_profile);
         options = view.findViewById(R.id.options);
@@ -152,36 +155,37 @@ public class ProfileFragment extends Fragment {
                 String btn = edit_profile.getText().toString();
 
                 if (btn.equals("Edit Profile")){
-
-                    //go to EditProfile
+                    /*자기자신이라면 단순히 EditProfileActivity 로 startActivity */
                     startActivity(new Intent(getContext() , EditProfileActivity.class));
 
                 }else if (btn.equals("follow")){
-
+                    //팔로잉을 누를떄
                     FirebaseDatabase.getInstance().getReference()
                             .child("Follow")
-                            .child(firebaseUser.getUid())
-                            .child("following")
-                            .child(profileid)
+                            .child(firebaseUser.getUid()) //자기자신
+                            .child("following") //following
+                            .child(profileid) //상대방
                             .setValue(true);
 
                     FirebaseDatabase.getInstance().getReference()
                             .child("Follow")
                             .child(profileid)
-                            .child("followers")
+                            .child("followers") //followers
                             .child(firebaseUser.getUid())
                             .setValue(true);
 
+                    //노티피케이션 데이터쓰기 까지 진행
                     addNotification();
 
                 }else if(btn.equals("following")){
+                    //팔로잉을 해제할때
 
                     FirebaseDatabase.getInstance().getReference()
                             .child("Follow")
                             .child(firebaseUser.getUid())
                             .child("following")
                             .child(profileid)
-                            .removeValue();
+                            .removeValue(); //rm
                     FirebaseDatabase.getInstance().getReference()
                             .child("Follow").child(profileid)
                             .child("followers")
@@ -202,10 +206,8 @@ public class ProfileFragment extends Fragment {
         my_fotos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 recyclerView.setVisibility(View.VISIBLE);
                 recyclerView_saves.setVisibility(View.GONE);
-
             }
         });
 
@@ -240,6 +242,7 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    /*notification fragment를 위한 데이터쓰기 */
     private void addNotification(){
 
         DatabaseReference reference = FirebaseDatabase.getInstance()
@@ -257,16 +260,27 @@ public class ProfileFragment extends Fragment {
 
     }
 
+    /*중요한 profileid 를 가지고서 해당하는 부분으로가서 user를 가져와서 view에 셋팅해주는부분. */
     private void userInfo(){
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(profileid);
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(profileid);
+
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (getContext() == null){ return; }
+                if (getContext() == null){
+                    return;
+                }
+
                 User user = dataSnapshot.getValue(User.class);
                 try {
                     assert user != null;
-                    Glide.with(requireActivity()).load(user.getImageurl()).override(100,100).into(image_profile);
+                    Glide.with(requireActivity())
+                            .load(user.getImageurl())
+                            .override(100,100)
+                            .into(image_profile);
+
 //                    Picasso.get().load(user.getImageurl()).into(image_profile);
                     username.setText(user.getUsername());
                     fullname.setText(user.getFullname());
@@ -284,6 +298,7 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    /*팔로우가 되어있는지 아닌지 setText를 바꿔주는 부분 */
     private void checkFollow(){
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
                 .child("Follow")
@@ -295,6 +310,8 @@ public class ProfileFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 if (dataSnapshot.child(profileid).exists()){
+                    /* 해당 레퍼런스 하위 노드에 위 쉐어드로 가져온 profileid가 존재한다면
+                    *  즉 , 팔로우가 되어있는지 아닌지 한다면 */
                     edit_profile.setText("following");
                 }else{
                     edit_profile.setText("follow");
@@ -308,6 +325,7 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    /*dataSnapshot getChildrenCount*/
     private void getFollowers(){
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
                 .child("Follow")
@@ -315,9 +333,11 @@ public class ProfileFragment extends Fragment {
                 .child("followers");
 
         reference.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 followers.setText(""+dataSnapshot.getChildrenCount());
+                /*단순히 스냅숏 count로써 개수 가져와서 진행. */
             }
 
             @Override
@@ -333,10 +353,11 @@ public class ProfileFragment extends Fragment {
         //db의 이부분을 참조해서
 
         reference1.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 following.setText(""+dataSnapshot.getChildrenCount());
-                //getChildrenCount 해주는작업
+                //getChildrenCount 해줌
 
             }
 
@@ -349,19 +370,21 @@ public class ProfileFragment extends Fragment {
 
     private void getNrPosts(){
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Posts");
+        /*모든 Posts쪽에서 */
         reference.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 int i = 0;
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-                    Post post = snapshot.getValue(Post.class);
+                    Post post = snapshot.getValue(Post.class); //자바객체로 가져온후에
                     assert post != null;
-                    if (post.getPublisher().equals(profileid)){
+                    if (post.getPublisher().equals(profileid)){ //이렇게 진행 . profileid는 현재유저의 uid
                         //해당 각각의 사용자의 포스트 개수를 count
                         i++;
                     }
                 }
-                posts.setText(""+i);
+                posts.setText(""+i); //반복문이 벗어난다면 초기화된 int i를 set view
             }
 
             @Override
@@ -383,8 +406,8 @@ public class ProfileFragment extends Fragment {
                     Post post = snapshot.getValue(Post.class);
                     //post.getPublisher().equals(profileid) 가 중요 ,,
                     assert post != null;
-                    if (post.getPublisher().equals(profileid)){
-                        postList.add(post);
+                    if (post.getPublisher().equals(profileid)){ //자기 자신이라면
+                        postList.add(post); // 해당 포스트model객체를 리스트에 담아서 리사이클러뷰 어댑터에 껴준것
                     }
                 }
 
@@ -410,6 +433,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    //리스트에 스냅숏고유 key 저장
                     mySaves.add(snapshot.getKey());
                     Log.d(TAG , "키는:"+snapshot.getKey());
                 }
@@ -436,7 +460,7 @@ public class ProfileFragment extends Fragment {
                     for (String id : mySaves){
                         assert post != null;
                         //id ==>?? key
-                        if (post.getPostid().equals(id)){
+                        if (post.getPostid().equals(id)){ // mysaves () 에서 저장한 값을 가지고서 진행
                             postList_saves.add(post);
                         }
                     }

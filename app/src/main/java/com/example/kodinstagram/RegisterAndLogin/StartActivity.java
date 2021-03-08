@@ -17,6 +17,7 @@ public class StartActivity extends AppCompatActivity {
 
     Button login , register;
 
+    /* 두가지 경로 >> login or register */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

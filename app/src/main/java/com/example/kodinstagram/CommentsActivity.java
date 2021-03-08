@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -73,27 +74,27 @@ public class CommentsActivity extends AppCompatActivity {
         postid = intent.getStringExtra("postid");
         publisherid = intent.getStringExtra("publisherid");
 
-        //.....recyclerView...setting for comment
+        //리사이클러뷰 생성
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         commentList = new ArrayList<>();
+        /* 댓글은 POST객체 하나에 작성되야하니까 , 어댑터에 따로 postid를 넣어주어서 이 id를 가지고 조건작성을 해주기위해서 진행 */
         commentAdapter = new CommentAdapter(this , commentList , postid);
         recyclerView.setAdapter(commentAdapter);
-
 
         addcomment = findViewById(R.id.add_comment);
         image_profile = findViewById(R.id.image_profile);
         post = findViewById(R.id.post);
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-
         post.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //TextUtils.isEmpty(addcomment)
                 if (addcomment.getText().toString().equals("")){
-                    Toast.makeText(CommentsActivity.this , "Can`t empty comments!" , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CommentsActivity.this , "댓글을 작성해주세요!" , Toast.LENGTH_SHORT).show();
                 }else{
                     addComment();
                 }
@@ -105,10 +106,12 @@ public class CommentsActivity extends AppCompatActivity {
 
     }//.......onCreate..............
 
+    /*addComment()  , readComments() 두개 함수로 구현되어지고 , 중요한건 postid로써 구분해준다.  */
 
     private void addComment() {
-
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Comments").child(postid);
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Comments")
+                .child(postid);
 
         String commentid = reference.push().getKey();
 
@@ -116,15 +119,16 @@ public class CommentsActivity extends AppCompatActivity {
         hashMap.put("comment" , addcomment.getText().toString());
         hashMap.put("publisher" , firebaseUser.getUid()); // null?
         hashMap.put("commentid" , commentid);
-
+        assert commentid != null;
         reference.child(commentid).setValue(hashMap);
+
         addNotification();
         addcomment.setText("");
 
     }
 
+    /*코맨트를 달때마다 db쓰기 작성 : 알림text 처리 */
     private void addNotification(){
-
         DatabaseReference reference = FirebaseDatabase.getInstance()
                 .getReference("Notifications")
                 .child(publisherid);
@@ -136,16 +140,18 @@ public class CommentsActivity extends AppCompatActivity {
         hashMap.put("ispost" , true);
 
         reference.push().setValue(hashMap);
+        //데이터베이스의 데이터 목록에 추가합니다. 목록에 새 노드를 푸시할 때마다 데이터베이스에서 고유 키를 생성
 
     }
 
+    /* 하단 코맨트 작성 EDITTEXT 왼쪽부분 IMAGEVIEW에 자기자신 이미지 가져오기 */
     private void getImage(){
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
-
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(firebaseUser.getUid());
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                 User user = dataSnapshot.getValue(User.class);
 
                 try {
@@ -163,9 +169,12 @@ public class CommentsActivity extends AppCompatActivity {
         });
     }
 
-    private void readComments(){
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Comments").child(postid);
+    /* db 읽기 */
+    private void readComments(){
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Comments")
+                .child(postid);
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

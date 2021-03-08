@@ -36,7 +36,6 @@ public class RegisterActivity extends AppCompatActivity {
     DatabaseReference reference;
     ProgressDialog pd;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,18 +87,19 @@ public class RegisterActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(str_username) || TextUtils.isEmpty(str_fullname) ||
                         TextUtils.isEmpty(str_email) || TextUtils.isEmpty(str_password)) {
 
-                    Toast.makeText(RegisterActivity.this , "All filed are required!" , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this , "모두 넣어주세요!" , Toast.LENGTH_SHORT).show();
                     pd.dismiss();
 
                 }else if(str_password.length() < 6){
-                    Toast.makeText(RegisterActivity.this , "At least Password 6 characters" , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this , "패스워드는 최소6자리 이상입니다." , Toast.LENGTH_SHORT).show();
                     pd.dismiss();
                 }else{
                     if (password.getText().toString().equals(passwordConfirm)){
+                        /* 공백,이메일상태,패스워드 제어해주고나서 모두 충족한다면 register 진행 */
                         register(str_username , str_fullname , str_email , str_password);
                         pd.dismiss();
                     }else{
-                        Toast.makeText(RegisterActivity.this , "password must be equals passwordConfirm" , Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterActivity.this , "비밀번호가 서로 일치하지 않습니다." , Toast.LENGTH_SHORT).show();
                         pd.dismiss();
                     }
 
@@ -110,20 +110,25 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
 
+    /* register 함수 부분 */
     private void register(final String username , final String fullname , String email  , String password ) {
-
+        /* 유저의 이메일,패스워드를 파라메터로 던져서 auth와 createUserWithEmailAndPassword 로 연동  */
         auth.createUserWithEmailAndPassword(email,password)
                 .addOnCompleteListener(RegisterActivity.this , new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
 
                 if (task.isSuccessful()){
+
+                    /* 현재 유저 받아와서 uid 미리 할당  */
                     FirebaseUser firebaseUser = auth.getCurrentUser();
                     String userid = firebaseUser.getUid();
 
+                    /* db를 위한 레퍼런스 객체 생성 */
                     reference = FirebaseDatabase.getInstance().getReference()
                             .child("Users")
-                            .child(userid);
+                            .child(userid); /* 고유 uid로써 따로따로 저장 */
+
                     HashMap<String , Object> hashMap = new HashMap<>();
                     hashMap.put("id" , userid);
                     hashMap.put("username" , username.toLowerCase());
@@ -132,6 +137,9 @@ public class RegisterActivity extends AppCompatActivity {
                     hashMap.put("imageurl" , "https://firebasestorage.googleapis.com/v0/b/kodinstagram-492ee.appspot.com/o/placeholer.png?alt=media&token=c9c9b116-09cc-4149-bf65-18175c1c8478");
                     hashMap.put("search" , username.toLowerCase());
                     hashMap.put("platform" , "none");
+                    /* 해시로 묶어서 */
+
+                    /* 레퍼런스에 해시를 set */
                     reference.setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -139,6 +147,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 pd.dismiss();
                                 Intent intent = new Intent(RegisterActivity.this , MainActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                /*새로운 Task 생성 후 테스크안에 activity를 추가 | 새로운 TASK 생성   */
                                 startActivity(intent);
                                 finish();
                             }

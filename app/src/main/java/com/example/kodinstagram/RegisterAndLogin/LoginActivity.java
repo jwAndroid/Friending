@@ -87,6 +87,7 @@ public class LoginActivity extends AppCompatActivity {
                             ,Toast.LENGTH_SHORT).show();
                 }else{
 
+                    /*register 와 마찬가지로 모든 조건이 충족했을때 , login()진행 */
                     login(str_email , str_password);
 
                 }
@@ -94,13 +95,11 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-
-
-
     }
 
     private void login(String email , String password) {
 
+        /*auth sign 으로 진행 */
         auth.signInWithEmailAndPassword(email , password)
                 .addOnCompleteListener(LoginActivity.this , new OnCompleteListener<AuthResult>() {
                     @Override
@@ -108,12 +107,16 @@ public class LoginActivity extends AppCompatActivity {
 
                         if (task.isSuccessful()){
                             DatabaseReference reference = FirebaseDatabase.getInstance()
-                                    .getReference().child("Users").child(auth.getCurrentUser().getUid());
+                                    .getReference()
+                                    .child("Users")
+                                    .child(auth.getCurrentUser().getUid()); /* 현재 자기자신의 uid를 의미 이 child에서 진행 */
 
+                            /* 에드벨류 이벤트 >> 레퍼런스참조 */
                             reference.addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                                    /* 존재한다면 넘어가기 */
                                     pd.dismiss();
                                     Intent intent = new Intent(LoginActivity.this , MainActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -55,7 +55,7 @@ public class MessageActivity extends AppCompatActivity {
     ImageButton btn_send;
     EditText text_send;
 
-    private FirebaseUser firebaseUser; //myUid
+    private FirebaseUser firebaseUser;
     private DatabaseReference reference;
 
     MessageAdapter messageAdapter;
@@ -63,16 +63,11 @@ public class MessageActivity extends AppCompatActivity {
     RecyclerView recyclerView;
 
     Intent intent;
-    String hisUid; // hisUid
+    String hisUid; // 상대방 uid
 
     ValueEventListener seenListener;
     APIService apiService;
     boolean notify = false;
-
-
-    //TODO : 일단 메세지 액티비티로 넘어가서 상대와 채팅하고 DB에 쓰는것까지 완료함. BUT! 처음부터 차근차근 강의보고 진행하는게 좋을꺼같음.
-    //TODO : HOME FRAGMENT 쪽 상단 디엠아이콘은 CHAT LIST를 구현하고 , SEARCH FRAGMENT 쪽에서는 PROFILE 과 CHAT 부분을 구현하자
-    //TODO : 현재까지는 액티비티로 UID를 들고 넘어가는것까지 완료
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,10 +83,10 @@ public class MessageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 startActivity(new Intent(MessageActivity.this, ChatMainActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-
             }
         });
 
+        /* fcm api call base body */
         apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
 
         recyclerView = findViewById(R.id.recycler_view);
@@ -105,6 +100,7 @@ public class MessageActivity extends AppCompatActivity {
         btn_send = findViewById(R.id.btn_send);
         text_send = findViewById(R.id.text_send);
 
+        /* ***중요*** intent 로 상대 UID를 꼭 받아서 진행한다. 이부분으로써 초기 구현부 시작. */
         intent = getIntent();
         hisUid = intent.getStringExtra("hisUid");
         Log.d(TAG,"HIS UID::" + hisUid);
@@ -183,6 +179,7 @@ public class MessageActivity extends AppCompatActivity {
 
     }
 
+    /* RealTime db로써 동작되며 , 데이터베이스를 읽고쓰는것에서 구현된다. */
     private void sendMessage(String sender , final String receiver , String message){
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
@@ -190,12 +187,19 @@ public class MessageActivity extends AppCompatActivity {
         hashMap.put("sender" , sender);
         hashMap.put("receiver" , receiver);
         hashMap.put("message" , message);
-        hashMap.put("isseen" , false); //TODO :
-        reference.child("Chats").push().setValue(hashMap);
+        hashMap.put("isseen" , false);
 
-        final DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("Chatlist")
-                .child(firebaseUser.getUid()).child(hisUid);
+        reference.child("Chats")
+                .push()
+                .setValue(hashMap);
 
+        /*레퍼런스 하위노드로써 자기자신과,상대 id 레퍼런스 인스턴스 생성 */
+        final DatabaseReference chatRef = FirebaseDatabase.getInstance()
+                .getReference("Chatlist")
+                .child(firebaseUser.getUid())
+                .child(hisUid);
+
+        /* addListenerForSingleValueEvent 싱글벨류는 스냅숏을 한번만 읽고 버린다. */
         chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -205,29 +209,37 @@ public class MessageActivity extends AppCompatActivity {
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
-        //TODO : 레퍼런스를 두개를 생성함 왜? 새로운 채팅을 생성할때, 새로운 메세지를 '받는사람'이 CHATS에 리스트에 생성되야하기떄문.
+        //TODO : 레퍼런스를 두개를 생성. 새로운 채팅을 생성할때, 새로운 메세지를 '받는사람'이 CHATS에 리스트에 생성되야하기떄문.
         //TODO : 한마디로 보내는사람이 메세지 리스트생성 chatRef , 받는사람이 새로운 메세지 리스트 생성 chatRef2
-        final DatabaseReference chatRef2 = FirebaseDatabase.getInstance().getReference("Chatlist")
-                .child(hisUid).child(firebaseUser.getUid());
+        final DatabaseReference chatRef2 = FirebaseDatabase.getInstance()
+                .getReference("Chatlist")
+                .child(hisUid)
+                .child(firebaseUser.getUid());
 
         chatRef2.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()){
-                    chatRef2.child("id").setValue(firebaseUser.getUid());
+                    chatRef2.child("id")
+                            .setValue(firebaseUser.getUid());
                 }
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
 
         //TODO : CLOUDING MESSAGEING API ...
         //TODO : 알림의 축이 되는 부분 notify 의 로직순서를 잘보고 게시물에도 적용
         final String msg = message;
-        reference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+        reference = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(firebaseUser.getUid());
+
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -247,6 +259,7 @@ public class MessageActivity extends AppCompatActivity {
 
     }
 
+    /* 디바이스 to 디바이스 통신은 retrofit으로 만들어서 진행 */
     private void sendNotification(String receiver , final String username , final String message){
         DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
         Query query = tokens.orderByKey().equalTo(receiver);
@@ -321,13 +334,14 @@ public class MessageActivity extends AppCompatActivity {
 
     }
 
+    /*파라메터 id 저장 함수 */
     private void currentUser(String userid){
-
         SharedPreferences.Editor editor = getSharedPreferences("PREFS" , MODE_PRIVATE).edit();
         editor.putString("currentuser" , userid);
         editor.apply();
     }
 
+    /**/
     @Override
     protected void onResume() {
         super.onResume();

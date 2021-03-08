@@ -102,7 +102,12 @@ public class EditProfileActivity extends AppCompatActivity {
                 bio.setText(user.getBio());
 
                 try {
-                    Glide.with(EditProfileActivity.this).load(user.getImageurl()).override(100,100).into(image_profile);
+
+                    Glide.with(EditProfileActivity.this)
+                            .load(user.getImageurl())
+                            .override(100,100)
+                            .into(image_profile);
+
 //                    Picasso.get().load(user.getImageurl()).into(image_profile);
                 }catch (Exception e){
                     Log.d(TAG , Objects.requireNonNull(e.getMessage()));
@@ -151,6 +156,7 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                //TODO : NULL 처리 하기
                 updateProfile(fullname.getText().toString(), username.getText().toString() , bio.getText().toString());
                 finish();
 
@@ -164,7 +170,7 @@ public class EditProfileActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_PICK);
-        startActivityForResult(Intent.createChooser(intent , "Pilih gambar")  ,  ACCESS_FILE );
+        startActivityForResult(Intent.createChooser(intent , "")  ,  ACCESS_FILE );
 
     }
 
@@ -178,16 +184,14 @@ public class EditProfileActivity extends AppCompatActivity {
         hashMap.put("username" , username);
         hashMap.put("search" , username);
         hashMap.put("bio" , bio);
-        reference.updateChildren(hashMap);
+        reference.updateChildren(hashMap); //이렇게 해당 레퍼런스 노드로 updateChildren진행
 
     }
 
     private String getFileExtension(Uri uri){
-
         ContentResolver contentResolver = getContentResolver();
         MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
         return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
-
     }
 
     private void uploadImage(){
@@ -202,7 +206,7 @@ public class EditProfileActivity extends AppCompatActivity {
             final StorageReference filereference = storageRef.child(System.currentTimeMillis()
                     +"."+getFileExtension(mImageUri));
 
-            //filereference db에 mImageUri 넣고 uploadTask 에 저장장
+            //filereference db에 mImageUri 넣고 uploadTask 에 저장
             uploadTask = filereference.putFile(mImageUri);
             //continueWithTask 로 imageUrl Download try!
             uploadTask.continueWithTask(new Continuation() {
@@ -223,12 +227,13 @@ public class EditProfileActivity extends AppCompatActivity {
 
                             String myUrl = downloadUri.toString();
 
-                            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users")
+                            DatabaseReference reference = FirebaseDatabase.getInstance()
+                                    .getReference("Users")
                                     .child(firebaseUser.getUid());
 
                             HashMap<String , Object> hashMap = new HashMap<>();
                             hashMap.put("imageurl" , "" + myUrl);
-                            reference.updateChildren(hashMap);
+                            reference.updateChildren(hashMap); //updateChildren하여 덮어씌운다
                             pd.dismiss();
 
                             }catch (Exception e){
