@@ -22,7 +22,5 @@
 - minSdkVersion : 24
 - targetSdkVersion : 30
 
-## APIs
-- NONE
 
 
