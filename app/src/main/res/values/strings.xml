@@ -1,7 +1,0 @@
-<resources>
-    <string name="app_name">Friending</string>
-
-    <string name="facebook_app_id">163126052186949</string>
-    <string name="fb_login_protocol_scheme">fb163126052186949</string>
-
-</resources>
